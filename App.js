@@ -35,7 +35,7 @@ const App = () => {
             console.log('Error during Azure operation', error)
         }
     }
-
+    // Masih ada bug di android, ketika selesai logout browser tidak close sendiri!!!
     const _onLogout = () => {
         azureAuth.webAuth
           .clearSession({
@@ -44,7 +44,9 @@ const App = () => {
           .then(success => {
             this.setState({ accessToken: null, user: null });
           })
-          .catch(error => console.log(error));
+          .catch(error => {
+            this.setState({ accessToken: null, user: null });
+          });
       };
 
     return (
