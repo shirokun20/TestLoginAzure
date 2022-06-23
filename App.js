@@ -2,11 +2,14 @@ import React from 'react';
 import { Image, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import AzureAuth from 'react-native-azure-auth';
 
-const CLIENT_ID = 'isi dengan client id kalian'; // replace the string with YOUR client ID
+const CLIENT_ID = 'isi ajah sendiri'
+const TENANT_ID = 'isi ajah sendiri'
 
 const azureAuth = new AzureAuth({
-    clientId: CLIENT_ID
-});
+  clientId: CLIENT_ID,
+  tenant: TENANT_ID,
+  // redirectUri: 'com.bssdexrn://com.bssdexrn/android/callback',
+})
 
 const App = () => {
 
@@ -42,10 +45,10 @@ const App = () => {
             closeOnLoad: true,
           })
           .then(success => {
-            this.setState({ accessToken: null, user: null });
+            setState({ accessToken: null, user: null });
           })
           .catch(error => {
-            this.setState({ accessToken: null, user: null });
+            setState({ accessToken: null, user: null });
           });
       };
 

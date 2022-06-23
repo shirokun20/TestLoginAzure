@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.testloginazure">
+  package="com.bssdexrn">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -27,8 +27,8 @@
             <category android:name="android.intent.category.BROWSABLE" />
             <data
                 android:pathPrefix="/android/callback"
-                android:host="com.testloginazure"
-                android:scheme="com.testloginazure" />
+                android:host="com.bssdexrn"
+                android:scheme="com.bssdexrn" />
         </intent-filter>
       </activity>
     </application>
