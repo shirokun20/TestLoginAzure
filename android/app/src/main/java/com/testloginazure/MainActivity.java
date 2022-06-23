@@ -1,4 +1,4 @@
-package com.bssdexrn;
+package com.testloginazure;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

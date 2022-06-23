@@ -1,29 +1,72 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
 import { Image, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import AzureAuth from 'react-native-azure-auth';
+import WebView from 'react-native-webview';
+import Scope from './config/scope';
+import url from 'url';
+import Agent from './config/agent';
 
-const CLIENT_ID = 'isi ajah sendiri'
-const TENANT_ID = 'isi ajah sendiri'
+const CLIENT_ID = 'japri dulu'
+const TENANT_ID = 'japri dulu'
 
 const azureAuth = new AzureAuth({
-  clientId: CLIENT_ID,
-  tenant: TENANT_ID,
-  // redirectUri: 'com.bssdexrn://com.bssdexrn/android/callback',
+    clientId: CLIENT_ID,
 })
+
+const INITSTATE = {
+    accessToken: null,
+}
 
 const App = () => {
 
-    const [state, setState] = React.useState({
-        accessToken: null,
-        user: '',
-        userId: ''
+    const [state, setState] = React.useState(INITSTATE);
+
+    const [isLogOut, setIsLogout] = React.useState(false);
+    const [agentData, setAgenData] = React.useState({
+        state: '',
+        nonce: '',
+        verifier: ''
     });
+
+    var angka = 0;
+
+    const [logoutLink, setLogoutLink] = React.useState('');
+    const webViewRef = React.useRef(null);
+
+    const agent = new Agent();
+
+    React.useEffect(() => {
+        if (state.accessToken != null) AsyncStorage.setItem('kunci', JSON.stringify(state));
+    }, [state]);
+
+    React.useEffect(() => {
+        AsyncStorage.getItem('kunci').then((value) => {
+            const res = value;
+            if (value?.length) {
+                setState(JSON.parse(res));
+            }
+        });
+    }, [])
 
     const _onLogin = async () => {
         try {
-            let tokens = await azureAuth.webAuth.authorize({ scope: 'openid profile User.Read' })
-            console.log('CRED>>>', tokens)
-            getInfo(tokens);
+            // let tokens = await azureAuth.webAuth.authorize({ scope: 'openid profile User.Read' })
+            // console.log('CRED>>>', tokens)
+            // getInfo(tokens);
+            const scope = new Scope('openid profile email');
+            const output = await agent.generateRequestParams();
+            setAgenData(output);
+            setLogoutLink(azureAuth.auth.loginUrl({
+                responseType: 'code',
+                scope: scope.toString(),
+                state: output.state,
+                nonce: output.nonce,
+                code_challenge: output.verifier
+            }));
+            setTimeout(() => {
+                setIsLogout(true);
+            }, 1000);
         } catch (error) {
             console.log('Error during Azure operation', error)
         }
@@ -38,19 +81,69 @@ const App = () => {
             console.log('Error during Azure operation', error)
         }
     }
+
+    const getToken = async (code) => {
+        const scope = new Scope('openid profile email');
+        const response = await azureAuth.auth.exchange({
+            code: code,
+            scope: scope.toString(),
+            redirectUri: '"com.testloginazure://com.testloginazure/android/callback',
+            code_verifier: agentData.verifier
+        });
+        setLogoutLink('');
+        setState({
+            accessToken: response.accessToken,
+        });
+    }
     // Masih ada bug di android, ketika selesai logout browser tidak close sendiri!!!
     const _onLogout = () => {
-        azureAuth.webAuth
-          .clearSession({
-            closeOnLoad: true,
-          })
-          .then(success => {
-            setState({ accessToken: null, user: null });
-          })
-          .catch(error => {
-            setState({ accessToken: null, user: null });
-          });
-      };
+        setLogoutLink(azureAuth.auth.logoutUrl());
+    }
+
+    if (logoutLink.length) {
+        return <View style={{
+            flex: 1,
+        }}>
+            <View>
+                <Text>Berhasil</Text>
+            </View>
+            <WebView
+                source={{
+                    uri: logoutLink,
+                }}
+                style={{
+                    flex: 1,
+                }}
+                ref={webViewRef}
+                onNavigationStateChange={res => {
+                    console.log(res.url);
+                    console.log(res.title);
+                    if (res.url.match('logoutsession')) {
+                        angka = angka + 1;
+                        if (angka > 1) {
+                            angka = 0;
+                            setLogoutLink('');
+                            AsyncStorage.removeItem('kunci');
+                            setState(INITSTATE);
+                        }
+                    } else if (res.url.match('code=')) {
+                        // console.log()
+                        const response = res.url.replace('#', '?')
+                        const urlHashParsed = url.parse(response, true).query
+                        const {
+                            code,
+                            state,
+                        } = urlHashParsed
+                        if (code.length) {
+                            getToken(code);
+                        }
+                    } else {
+
+                    }
+                }}
+            />
+        </View>
+    }
 
     return (
         <View style={{
@@ -87,7 +180,7 @@ const App = () => {
                 borderRadius: 5,
                 flexDirection: 'row',
                 alignItems: 'center',
-            }} onPress={() => state.accessToken ?  _onLogout() : _onLogin()}>
+            }} onPress={() => state.accessToken ? _onLogout() : _onLogin()}>
                 <Image
                     source={require('./azure.png')}
                     style={{

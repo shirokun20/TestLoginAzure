@@ -1,4 +1,4 @@
-package com.bssdexrn.newarchitecture.modules;
+package com.testloginazure.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;

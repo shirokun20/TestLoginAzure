@@ -1,4 +1,4 @@
-package com.bssdexrn.newarchitecture;
+package com.testloginazure.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -19,9 +19,9 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.bssdexrn.BuildConfig;
-import com.bssdexrn.newarchitecture.components.MainComponentsRegistry;
-import com.bssdexrn.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.testloginazure.BuildConfig;
+import com.testloginazure.newarchitecture.components.MainComponentsRegistry;
+import com.testloginazure.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 
